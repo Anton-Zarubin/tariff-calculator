@@ -31,6 +31,10 @@
             <artifactId>javax.inject</artifactId>
             <version>1</version>
         </dependency>
+        <dependency>
+            <groupId>org.apache.logging.log4j</groupId>
+            <artifactId>log4j-to-slf4j</artifactId>
+        </dependency>
 <!--       Test -->
         <dependency>
             <groupId>org.junit.jupiter</groupId>
