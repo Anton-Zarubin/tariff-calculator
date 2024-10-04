@@ -9,7 +9,7 @@ import java.util.List;
 @Schema(description = "Данные для расчета стоимости доставки")
 public record CalculatePackagesRequest(
         @Schema(description = "Список упаковок отправления",
-                example = "[{\"weight\": 4056.45}]")
+                example = "[{\"weight\": 5184, \"length\": 531, \"width\": 304, \"height\": 339}]")
         @NotNull
         @NotEmpty
         List<CargoPackage> packages,

@@ -21,9 +21,9 @@ class WeightFactoryTest {
         assertThat(weight.weightGrams()).isEqualByComparingTo(BigInteger.valueOf(amount));
     }
 
-    @ParameterizedTest(name = "Стоимость = {arguments} -> исключение")
+    @ParameterizedTest(name = "Граммы = {arguments} -> исключение")
     @ValueSource(longs = { -1, -100, -10_000 })
-    @DisplayName("Значение стоимости ниже 0.00 -> исключение")
+    @DisplayName("Вес ниже 0.00 -> исключение")
     void whenGramsLessThanZero_thenThrowException(long amount) {
         assertThatThrownBy(() -> new Weight(BigInteger.valueOf(amount)))
                 .isInstanceOf(IllegalArgumentException.class);
