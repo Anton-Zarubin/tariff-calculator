@@ -3,6 +3,7 @@ package ru.fastdelivery.domain.delivery.shipment;
 import lombok.extern.slf4j.Slf4j;
 import ru.fastdelivery.domain.common.currency.Currency;
 import ru.fastdelivery.domain.common.dimensions.Volume;
+import ru.fastdelivery.domain.common.route.Route;
 import ru.fastdelivery.domain.common.weight.Weight;
 import ru.fastdelivery.domain.delivery.pack.Pack;
 
@@ -12,12 +13,14 @@ import java.util.List;
 /**
  * @param packages упаковки в грузе
  * @param currency валюта объявленная для груза
+ * @param route маршрут перевозки
  */
 
 @Slf4j
 public record Shipment(
         List<Pack> packages,
-        Currency currency
+        Currency currency,
+        Route route
 ) {
     public Weight weightAllPackages() {
         Weight totalWeight = packages.stream()
@@ -35,4 +38,6 @@ public record Shipment(
         log.info("Cargo volume is {} cbm", totalVolume);
         return totalVolume;
     }
+
+    public int routeLength () { return this.route.distance(); }
 }

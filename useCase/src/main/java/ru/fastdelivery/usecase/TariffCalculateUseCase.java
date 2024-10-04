@@ -6,11 +6,14 @@ import ru.fastdelivery.domain.common.price.Price;
 import ru.fastdelivery.domain.delivery.shipment.Shipment;
 
 import javax.inject.Named;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 
 @Slf4j
 @Named
 @RequiredArgsConstructor
 public class TariffCalculateUseCase {
+    static final int MIN_ROUTE_LENGTH = 450;
     private final PriceProvider priceProvider;
 
     public Price calc(Shipment shipment) {
@@ -28,7 +31,21 @@ public class TariffCalculateUseCase {
                 .multiply(volumeAllPackagesCBM);
         log.info("Price calculated by volume: {}", priceByVolume.amount());
 
-        return priceByWeight.max(priceByVolume).max(minimalPrice);
+        var basePrice = priceByWeight.max(priceByVolume).max(minimalPrice);
+        log.info("Base prise is {}", basePrice.amount());
+
+        return  PriceIncludingRoute(shipment.routeLength(), basePrice);
+    }
+
+    Price PriceIncludingRoute(int routeLength, Price basePrice) {
+        if (routeLength > MIN_ROUTE_LENGTH) {
+            var newAmount = basePrice.amount()
+                    .multiply(BigDecimal.valueOf((double) routeLength / MIN_ROUTE_LENGTH))
+                    .setScale(2, RoundingMode.CEILING);
+            basePrice = new Price(newAmount, basePrice.currency());
+        }
+        log.info("Price including route is {}", basePrice.amount());
+        return basePrice;
     }
 
     public Price minimalPrice() {

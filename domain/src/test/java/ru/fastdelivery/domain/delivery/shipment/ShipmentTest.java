@@ -3,9 +3,11 @@ package ru.fastdelivery.domain.delivery.shipment;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
 import ru.fastdelivery.domain.common.currency.CurrencyFactory;
 import ru.fastdelivery.domain.common.dimensions.Dimension;
 import ru.fastdelivery.domain.common.dimensions.Volume;
+import ru.fastdelivery.domain.common.route.Route;
 import ru.fastdelivery.domain.common.weight.Weight;
 import ru.fastdelivery.domain.delivery.pack.Pack;
 
@@ -27,7 +29,8 @@ class ShipmentTest {
         var volume2 = new Volume(new Dimension(325), new Dimension(310), new Dimension(450));
 
         var packages = List.of(new Pack(weight1, volume1), new Pack(weight2, volume2));
-        shipment = new Shipment(packages, new CurrencyFactory(code -> true).create("RUB"));
+        var route = Mockito.mock(Route.class);
+        shipment = new Shipment(packages, new CurrencyFactory(code -> true).create("RUB"), route);
     }
 
     @AfterAll

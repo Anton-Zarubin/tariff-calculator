@@ -6,3 +6,11 @@ cost:
     perKg: 8.4
     perCBM: 2096
     minimal: 350
+
+coordinates:
+  latitude:
+    min: 45.0
+    max: 65.0
+  longitude:
+    min: 30.0
+    max: 96.0

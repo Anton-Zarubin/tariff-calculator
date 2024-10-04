@@ -5,11 +5,13 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
+import org.mockito.Mockito;
 import ru.fastdelivery.domain.common.currency.Currency;
 import ru.fastdelivery.domain.common.currency.CurrencyFactory;
 import ru.fastdelivery.domain.common.dimensions.Dimension;
 import ru.fastdelivery.domain.common.dimensions.Volume;
 import ru.fastdelivery.domain.common.price.Price;
+import ru.fastdelivery.domain.common.route.Route;
 import ru.fastdelivery.domain.common.weight.Weight;
 import ru.fastdelivery.domain.delivery.pack.Pack;
 import ru.fastdelivery.domain.delivery.shipment.Shipment;
@@ -29,7 +31,7 @@ class TariffCalculateUseCaseTest {
 
     final TariffCalculateUseCase tariffCalculateUseCase = new TariffCalculateUseCase(priceProvider);
 
-    @ParameterizedTest(name ="Расчет стоимости доставки -> успешно")
+    @ParameterizedTest (name ="Расчет стоимости доставки без учёта маршрута -> успешно")
     @CsvSource({"1200, 100, 100, 100, 120", "14400, 1_000, 1_000, 1_000, 1850"})
     void whenCalculatePrice_thenSuccess(BigInteger weight, Integer length, Integer width, Integer height, BigDecimal expected) {
         var minimalPrice = new Price(BigDecimal.TEN, currency);
@@ -42,12 +44,24 @@ class TariffCalculateUseCaseTest {
 
         var shipment = new Shipment(List.of(new Pack(new Weight(weight),
                 new Volume(new Dimension(length), new Dimension(width), new Dimension(height)))),
-                new CurrencyFactory(code -> true).create("RUB"));
+                new CurrencyFactory(code -> true).create("RUB"), Mockito.mock(Route.class));
         var expectedPrice = new Price(expected, currency);
 
         var actualPrice = tariffCalculateUseCase.calc(shipment);
 
         assertThat(actualPrice).usingRecursiveComparison()
+                .withComparatorForType(BigDecimalComparator.BIG_DECIMAL_COMPARATOR, BigDecimal.class)
+                .isEqualTo(expectedPrice);
+    }
+
+    @ParameterizedTest(name ="Расчет стоимости доставки с учётом маршрута -> успешно")
+    @CsvSource({"500, 350, 388.89", "200, 788.23, 788.23"})
+    void testRoutePriceCorrection(int routeLength, BigDecimal basePriceAmount, BigDecimal expectedPriceAmount) {
+        var basePrice = new Price(basePriceAmount, currency);
+        var newPrice = tariffCalculateUseCase.PriceIncludingRoute(routeLength, basePrice);
+        var expectedPrice = new Price(expectedPriceAmount, currency);
+
+        assertThat(newPrice).usingRecursiveComparison()
                 .withComparatorForType(BigDecimalComparator.BIG_DECIMAL_COMPARATOR, BigDecimal.class)
                 .isEqualTo(expectedPrice);
     }
